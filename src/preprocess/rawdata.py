@@ -5,9 +5,9 @@ import numpy as np
 import os
 import re
 
-path = '../secret/data/'
+path = '../../secret/data/'
 
-sql_path = '../secret/sql/'
+sql_path = '../../secret/sql/'
 
 def convert(x):
     try:
@@ -234,7 +234,7 @@ def display_history():
 	bmd = pd.read_csv(path+'clean/os_data.csv', index_col=0)
 	hn = df['hn'].values.tolist()
 	hn = list(dict.fromkeys(hn))
-	xticks = [2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018]
+
 	for i in hn:
 		d = df[df['hn']==i]
 		d['date'] = pd.to_datetime(d['date'])
@@ -243,6 +243,7 @@ def display_history():
 		l = lab[lab['txn'].isin(txn)]
 		l['date'] = pd.to_datetime(l['date'])
 		l['year'] = l['date'].dt.year
+		l = l[pd.notna(l['value'])]
 		dr = drug[drug['txn'].isin(txn)]
 		dr['date'] = pd.to_datetime(dr['date'])
 		dr['year'] = dr['date'].dt.year
