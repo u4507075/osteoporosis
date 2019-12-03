@@ -168,8 +168,8 @@ def get_radius_bmd(x):
 
 def get_data(config):
 
-	table = ['demo_data','idemo_data','lab_data','ilab_data','drug_data','idrug_data','os_data','ios_data']
-	#table = ['lab_data','ilab_data']
+	#table = ['demo_data','idemo_data','lab_data','ilab_data','drug_data','idrug_data','os_data','ios_data']
+	table = ['demo_data']
 	for filename in table:
 		df = get_raw_data(filename,config)
 		df = decode(df)
