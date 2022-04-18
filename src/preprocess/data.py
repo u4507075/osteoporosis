@@ -1,7 +1,51 @@
 import pandas as pd
 import numpy as np
 import re
+from sklearn import tree
+from sklearn import svm
+from sklearn import linear_model
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.naive_bayes import GaussianNB
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
 
+from sklearn.neural_network import MLPClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.gaussian_process import GaussianProcessClassifier
+from sklearn.gaussian_process.kernels import RBF
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+from sklearn.ensemble import GradientBoostingClassifier
+
+from sklearn import preprocessing
+from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import cross_val_score
+from sklearn.metrics import explained_variance_score
+from sklearn.metrics import max_error	 
+from sklearn.metrics import mean_absolute_error	 
+from sklearn.metrics import mean_squared_error	 
+from sklearn.metrics import mean_squared_log_error	 
+from sklearn.metrics import median_absolute_error	 
+from sklearn.metrics import r2_score
+from scipy.stats import pearsonr
+
+from sklearn import tree
+from sklearn import svm
+from sklearn import linear_model
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.naive_bayes import GaussianNB
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
+	
 dx = ['M10','M100','M109',#gout
 		'M051','M053','M058','M059','M06','M060','M061','M062','M063','M064','M068','M069',#rheumatoid
 		'I10','I500',#ht
@@ -93,8 +137,6 @@ def onehot_lab(prefix=''):
 	print(result)
 	result.to_csv(prefix+'lab_onehot.csv')
 
-
-
 def combine(prefix=''):
 
 	bmd = pd.read_csv(prefix+'os_data.csv', index_col=0)
@@ -125,9 +167,6 @@ def create_dataset(prefix):
 	onehot_lab(prefix=prefix)
 	combine(prefix=prefix)
 
-#create_dataset('')
-#create_dataset('i')
-
 def create_bmd_dataset(prefix):
 	df = pd.read_csv(prefix+'result.csv',index_col=0)
 	df['year'] = df['date'].apply(lambda x: str(x[:4]))
@@ -138,27 +177,6 @@ def create_bmd_dataset(prefix):
 			df[c] = df[c].apply(lambda x: 1 if x >=1 else 0)
 	df.to_csv(prefix+'result_year.csv')
 	print(df)
-
-'''
-result = pd.read_csv('result.csv', index_col=0)
-r = result[['drug_code','drug_name']].groupby(['drug_code','drug_name']).size()
-r.to_csv('drug_list.csv')
-r = result[['drug_code']].groupby(['drug_code']).size()
-r.to_csv('drugcode_list.csv')
-print(r)
-'''
-
-from sklearn import preprocessing
-from sklearn.model_selection import StratifiedKFold
-from sklearn.model_selection import cross_val_score
-from sklearn.metrics import explained_variance_score
-from sklearn.metrics import max_error	 
-from sklearn.metrics import mean_absolute_error	 
-from sklearn.metrics import mean_squared_error	 
-from sklearn.metrics import mean_squared_log_error	 
-from sklearn.metrics import median_absolute_error	 
-from sklearn.metrics import r2_score
-from scipy.stats import pearsonr
 
 def validate(clfs,df,t):
 	testset = df.sample(frac=0.25, random_state=16)
@@ -221,17 +239,6 @@ def validate(clfs,df,t):
 	
 def train(df,t):
 	
-
-	from sklearn import tree
-	from sklearn import svm
-	from sklearn import linear_model
-	from sklearn.neighbors import KNeighborsRegressor
-	from sklearn.gaussian_process import GaussianProcessRegressor
-	from sklearn.naive_bayes import GaussianNB
-	from sklearn.ensemble import GradientBoostingRegressor
-	from sklearn.ensemble import GradientBoostingClassifier
-	from sklearn.ensemble import RandomForestRegressor
-	from sklearn.linear_model import LinearRegression
 	clfs = [	tree.DecisionTreeRegressor(),
 				svm.SVR(),
 				#linear_model.SGDRegressor(max_iter=1000),
@@ -243,25 +250,6 @@ def train(df,t):
 	
 	print(t)
 	validate(clfs,df,t)
-
-'''		
-t = 'femur_bmd'
-df = pd.read_csv('result.csv',index_col=0)
-df = df[df[t].notna()]
-sex = pd.get_dummies(df['sex'],prefix='sex')
-df['m'] = sex['sex_m']
-df['f'] = sex['sex_f']
-df = df.fillna(0)
-print(df)
-
-df = df.drop(columns=[	'hn','txn',
-								'femur_t_score','femur_z_score',
-								'lumbar_bmd','lumbar_t_score','lumbar_z_score',
-								'radius_bmd','radius_t_score','radius_z_score',
-								'bmd_name','date','sex'
-								])
-train(df,t)
-'''
 
 def train_femur_tscore():
 	odf = pd.read_csv('result_year.csv')
@@ -320,21 +308,7 @@ def fx_history(x):
 		if x[f] > 0:
 			return 'fx'
 	return 'no_fx'
-	'''
-	fx = 'no_fx'
-	for f in v_fx:
-		if x[f] > 0:
-			fx = 'v_fx'
-			break
-	for f in non_v_fx:
-		if x[f] > 0 and fx == 'v_fx':
-			fx = 'both_fx'
-			break
-		elif  x[f] > 0:
-			fx = 'non_v_fx'
-			break
-	return fx
-	'''
+
 def train_fx():
 	odf = pd.read_csv('result_year.csv')
 	idf = pd.read_csv('iresult_year.csv')
@@ -347,37 +321,16 @@ def train_fx():
 	df[t] = df.apply(fx_history, axis=1)
 	df = df.fillna(0)
 	df = df.drop(columns=[	'hn',
-									'icd10_S320','icd10_S321','icd10_S322',#vertebral fx
-									'icd10_S420',#clavicle fx
-									'icd10_S422','icd10_S423','icd10_S424','icd10_S429',#humerus fx
-									'icd10_S525','icd10_S526',#wrist fx
-									'icd10_S323','icd10_S324','icd10_S325','icd10_S327','icd10_S328',#pelvis fx
-									'icd10_S720','icd10_S721','icd10_S722','icd10_S723','icd10_S724','icd10_S728','icd10_S729',#hip fx
-									'icd10_S82','icd10_S821','icd10_S822','icd10_S823','icd10_S824','icd10_S825','icd10_S826','icd10_S828',#leg fx
-									'bmd_name','year','sex'
-									])
+				'icd10_S320','icd10_S321','icd10_S322',#vertebral fx
+				'icd10_S420',#clavicle fx
+				'icd10_S422','icd10_S423','icd10_S424','icd10_S429',#humerus fx
+				'icd10_S525','icd10_S526',#wrist fx
+				'icd10_S323','icd10_S324','icd10_S325','icd10_S327','icd10_S328',#pelvis fx
+				'icd10_S720','icd10_S721','icd10_S722','icd10_S723','icd10_S724','icd10_S728','icd10_S729',#hip fx
+				'icd10_S82','icd10_S821','icd10_S822','icd10_S823','icd10_S824','icd10_S825','icd10_S826','icd10_S828',#leg fx
+				'bmd_name','year','sex'
+				])
 
-	from sklearn import tree
-	from sklearn import svm
-	from sklearn import linear_model
-	from sklearn.neighbors import KNeighborsRegressor
-	from sklearn.gaussian_process import GaussianProcessRegressor
-	from sklearn.naive_bayes import GaussianNB
-	from sklearn.ensemble import GradientBoostingRegressor
-	from sklearn.ensemble import GradientBoostingClassifier
-	from sklearn.ensemble import RandomForestRegressor
-	from sklearn.linear_model import LinearRegression
-
-	from sklearn.neural_network import MLPClassifier
-	from sklearn.neighbors import KNeighborsClassifier
-	from sklearn.svm import SVC
-	from sklearn.gaussian_process import GaussianProcessClassifier
-	from sklearn.gaussian_process.kernels import RBF
-	from sklearn.tree import DecisionTreeClassifier
-	from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
-	from sklearn.naive_bayes import GaussianNB
-	from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
-	from sklearn.ensemble import GradientBoostingClassifier
 	clfs = [	KNeighborsClassifier(4),
 				#SVC(kernel="linear", C=0.025),
 				#SVC(gamma=2, C=1),
@@ -417,13 +370,19 @@ def train_fx():
 			i = i+1
 	print(testset)
 	testset.to_csv('fx_prediction.csv')
+
+#create dataset
+#create_dataset('')
+#create_dataset('i')
 #create_bmd_dataset('')
 #create_bmd_dataset('i')
-#r2 score ~ 0.3 - 0.4
+
+#train dataset with femur bmd label
 #train_femur_tscore()
-#r2 score ~ 0.2 - 0.3
+#train dataset with lumbar bmd label
 #train_lumbar_tscore()
-train_fx()
+#train dataset with history of fracture label
+#train_fx()
 
 
 
